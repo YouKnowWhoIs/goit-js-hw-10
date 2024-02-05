@@ -7,22 +7,23 @@ import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
 const calendar = document.querySelector('#datetime-picker');
-const startbtn = document.querySelector('button[data-start]');
+const startButton = document.querySelector('button[data-start]');
 const daysTime = document.querySelector('[data-days]');
 const hoursTime = document.querySelector('[data-hours]');
 const minutesTime = document.querySelector('[data-minutes]');
 const secondsTime = document.querySelector('[data-seconds]');
 
-startbtn.disabled = true;
-let userSelectedDate = null;
+startButton.disabled = true;
+let userSelectedDate;
 
 const options = {
   enableTime: true,
   time_24hr: true,
-  defaultDate: null,
+  defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    console.log(selectedDates[0]);
+    userSelectedDate = selectedDates[0];
+    activeBtn();
   },
 };
 
@@ -36,8 +37,15 @@ function activeBtn() {
   const selectedDate = new Date(calendar.value);
 
   if (selectedDate > new Date()) {
-    startbtn.disabled = false;
+    startButton.disabled = false;
     userSelectedDate = selectedDate;
+  } else if (userSelectedDate && selectedDate < userSelectedDate) {
+    startButton.disabled = true;
+    userSelectedDate = null;
+    iziToast.error({
+      message: 'Please choose a date in the future',
+      position: 'topRight',
+    });
   } else {
     userSelectedDate = null;
     iziToast.error({
@@ -58,10 +66,11 @@ class Timer {
 
     this.intervalId = setInterval(() => {
       const diff = userSelectedDate.getTime() - Date.now();
-      if (diff <= 0) {
+      if (diff < 0) {
         clearInterval(this.intervalId);
-        startbtn.disabled = true;
+        startButton.disabled = true;
         calendar.disabled = false;
+        return;
       }
       const time = this.convertMs(diff);
       this.tick(time);
@@ -102,9 +111,9 @@ function onTime(time) {
 
 const timer = new Timer(onTime);
 
-startbtn.addEventListener('click', () => {
+startButton.addEventListener('click', () => {
   console.log('start');
   calendar.disabled = true;
-  startbtn.disabled = true;
+  startButton.disabled = true;
   timer.start();
 });

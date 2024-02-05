@@ -17,18 +17,28 @@ function createPromise(event) {
   const promise = new Promise((resolve, reject) => {
     setTimeout(() => {
       if (isValid === fulfilled) {
-        iziToast.success({
-          message: `✅ Fulfilled promise in ${delayValue}ms`,
-          position: 'topRight',
-        });
-      } else if (isValid === rejected) {
-        iziToast.error({
-          message: `❌ Rejected promise in ${delayValue}ms`,
-          position: 'topRight',
-        });
+        resolve();
+      } else {
+        reject();
       }
     }, delayValue);
   });
+
+  promise.then(onFullFiles).catch(onRejected);
+
+  function onFullFiles() {
+    iziToast.success({
+      message: `✅ Fulfilled promise in ${delayValue}ms`,
+      position: 'topRight',
+    });
+  }
+
+  function onRejected() {
+    iziToast.error({
+      message: `❌ Rejected promise in ${delayValue}ms`,
+      position: 'topRight',
+    });
+  }
+
   form.reset();
-  return promise;
 }
