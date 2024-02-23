@@ -17,9 +17,9 @@ function createPromise(event) {
   const promise = new Promise((resolve, reject) => {
     setTimeout(() => {
       if (isValid === fulfilled) {
-        resolve();
+        resolve(delayValue);
       } else {
-        reject();
+        reject(delayValue);
       }
     }, delayValue);
   });
